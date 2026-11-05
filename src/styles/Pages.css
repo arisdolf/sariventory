@@ -1,0 +1,122 @@
+/* ===== Page-specific styles: login and receipt ===== */
+
+/* --- Login --- */
+.login-wrap {
+  flex: 1;
+  width: 100%;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.login {
+  width: min(380px, 100%);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+}
+.login input { width: 100% }
+
+
+.auth-title { font-size: 20px; margin: 14px 0 2px }
+.auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.auth-err { color: var(--bad); margin: 10px 0 0 }
+.auth-note { background: var(--accbg); color: var(--acc); border-radius: 8px; padding: 10px 12px; margin: 12px 0 0; font-size: 14px }
+.auth-note.warn { background: var(--warnbg); color: var(--warn) }
+.auth-note.warn .link { color: var(--warn); text-decoration: underline }
+.auth-switch { text-align: center; margin: 16px 0 0; color: var(--mute); font-size: 14px }
+
+.link { background: none; border: 0; padding: 0; color: var(--acc); font: 600 14px Figtree, sans-serif; cursor: pointer }
+.link:hover { text-decoration: underline }
+
+/* Two-way toggle */
+.seg { display: flex; gap: 4px; padding: 4px; margin: 6px 0 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px }
+.seg button { flex: 1; border: 0; background: none; color: var(--mute); font: 600 14px Figtree, sans-serif; padding: 9px 6px; border-radius: 7px; cursor: pointer }
+.seg button.on { background: var(--bg); color: var(--acc); box-shadow: 0 1px 3px rgba(0, 0, 0, .12) }
+
+
+/* --- Receipt --- */
+.receipt {
+  background: var(--bg);
+  color: var(--text);
+  width: min(340px, 92vw);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+.rc-c { text-align: center }
+.rc-r { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0 }
+.receipt hr { border: 0; border-top: 1px dashed var(--mute); margin: 10px 0 }
+
+/* Print only the receipt, sized for an 80 mm roll */
+@media print {
+  body * { visibility: hidden }
+  .receipt, .receipt * { visibility: visible }
+  .rc-ov { position: static; background: none; display: block }
+  .receipt {
+    position: absolute; left: 0; top: 0;
+    width: 100%; max-width: 80mm;
+    max-height: none; overflow: visible;
+    background: #fff; color: #000;
+  }
+  .no-print { display: none !important }
+}
+
+.login select { width: 100% }
+
+.check { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0 0; color: var(--text); font-size: 14px }
+.login .check input { width: 18px; height: 18px; min-height: 0; margin-top: 2px; flex: none }
+
+.terms { background: var(--bg); width: min(480px, 92vw); max-height: 85vh; display: flex; flex-direction: column }
+.terms-body { overflow: auto; font-size: 14px }
+.terms-body p { margin: 0 0 10px }
+
+/* --- Static demo account picker --- */
+.demo-logins {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.demo-heading { font-size: 14px; font-weight: 700 }
+.demo-caption, .demo-password-note { color: var(--mute); font-size: 12px; margin: 3px 0 10px }
+.demo-password-note { margin: 10px 0 0; text-align: center }
+.demo-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  margin-top: 6px;
+  color: var(--text);
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.demo-account:hover { border-color: var(--acc); background: var(--accbg) }
+.demo-account:disabled { opacity: .55; cursor: wait }
+.demo-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--acc);
+  background: var(--accbg);
+  font-size: 12px;
+  font-weight: 700;
+}
+.demo-account-info { min-width: 0; flex: 1; display: flex; flex-direction: column }
+.demo-account-info b { font-size: 13px }
+.demo-account-info small { color: var(--mute); font-size: 11px; overflow-wrap: anywhere }
+.demo-open { flex: none; color: var(--acc); font-size: 12px; font-weight: 700 }
+@media (max-width: 430px) {
+  .login { padding: 18px }
+  .demo-account-info small { font-size: 10px }
+}
