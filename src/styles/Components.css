@@ -1,3 +1,4 @@
+
 /* ===== Reusable pieces: forms, buttons, cards, tables, modal, toast, picker ===== */
 
 /* --- Forms --- */
@@ -179,3 +180,54 @@ dialog input, dialog select { width: 100% }
 }
 
 .btn:disabled { opacity: .5; cursor: not-allowed }
+
+/* Category row and action buttons */
+.category-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.category-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.category-name small {
+  color: var(--mute);
+}
+
+.category-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.category-actions .btn {
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: 0;
+  flex: 0 0 auto !important;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 420px) {
+  .category-row { gap: 8px; }
+  .category-actions { gap: 5px; }
+  .category-actions .btn {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}

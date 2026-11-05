@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 const ICONS = {
+  analytics: <><path d="M4 20V10M10 20V4M16 20v-8M22 20H2" /></>,
   dash: <><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></>,
   prod: <><path d="M21 8 12 3 3 8v8l9 5 9-5z" /><path d="m3 8 9 5 9-5M12 13v8" /></>,
   sale: <><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.7 12.4a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 7H6" /></>,
@@ -17,6 +18,7 @@ const Icon = ({ n }) => <span className="ic"><svg viewBox="0 0 24 24">{ICONS[n]}
 
 // key, long label, short label, permission needed
 const TABS = [
+  
   ['dash', 'Dashboard', 'Home', null],
   ['prod', 'Products', 'Items', 'products'],
   ['sale', 'New sale', 'Sell', 'sell'],
@@ -25,6 +27,7 @@ const TABS = [
   ['sup', 'Suppliers', 'Suppliers', 'suppliers'],
   ['team', 'Team', 'Team', 'team'],
   ['profile', 'Profile', 'Me', null],
+  ['analytics', 'Analytics', 'Reports', 'analytics'],
 ]
 
 export default function Nav({ view, setView, perms = [], store, user, onLogout }) {
@@ -48,14 +51,12 @@ export default function Nav({ view, setView, perms = [], store, user, onLogout }
           <b>{user?.name || 'Signed in'}</b>
           <small>{user?.roleLabel || 'Team member'}</small>
         </div>
-        <button className="out" onClick={onLogout}><Icon n="out" /><span>Switch account / Log out</span></button>
+        <button className="out" onClick={onLogout}><Icon n="out" /><span>Log out</span></button>
       </nav>
 
-      {/* Mobile top bar */}
       <div className="top">
-        <div><b>{store || 'Sariventory'}</b><small>{user?.name} · {user?.roleLabel}</small></div>
-        <button type="button" onClick={onLogout}>Switch account</button>
-      </div>
+  <b>{store || 'Sariventory'}</b>
+</div>
 
       {/* Mobile floating tab bar */}
       <div className="tabbar">
