@@ -1,231 +1,113 @@
 import { useEffect, useState } from 'react'
-import { api } from '../services/api'
-import { peso } from '../utils/format'
 import Empty from '../components/Empty'
 import { PageSkeleton } from '../components/Skeleton'
+import { api } from '../services/api'
+import { peso } from '../utils/format'
 
-const OPTIONS = [
-  ['7', 'Last 7 days'],
-  ['30', 'Last 30 days'],
-  ['90', 'Last 90 days'],
-  ['365', 'Last 12 months'],
-  ['1827', 'Last 5 years']
-]
 
-const num = value => Number(value || 0)
+const STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12]
+const GROUPS = [['daily', 'Daily'], ['weekly', 'Weekly'], ['monthly', 'Monthly'], ['yearly', 'Yearly']]
 
-function Metric({ label, value, detail }) {
-  return (
-    <div className="analytics-metric">
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{detail}</small>
-    </div>
-  )
+// A grouping is only offered when it makes sense for the range AND the account is old enough
+
+// A grouping is only offered when it makes sense for the range AND the account is old enough
+const groupOk = (g, unit, n, meta) => {
+  const months = unit === 'years' ? n * 12 : n
+  if (g === 'daily') return months <= 3
+  if (g === 'weekly') return months <= 12 && meta.age_days >= 14
+  if (g === 'monthly') return months >= 2 && meta.age_months >= 2
+  return unit === 'years' && n >= 2 && meta.age_years >= 2 // yearly
 }
 
-function SalesChart({ daily }) {
-  const max = Math.max(1, ...daily.map(d => num(d.revenue)))
-
-  return (
-    <div className="an-chart">
-      {daily.map((d, i) => {
-        const percent = num(d.revenue) / max * 100
-        const showLabel =
-          daily.length <= 7 ||
-          i % (daily.length <= 30 ? 5 : daily.length <= 90 ? 15 : 60) === 0
-
-        return (
-          <div className="an-col" key={d.day}>
-            <div className="an-plot">
-              <div
-                className="an-bar"
-                style={{ height: `${percent}%` }}
-                title={`${d.day}: ${peso(d.revenue)}`}
-              />
-            </div>
-
-            {showLabel && (
-              <small>
-                {new Date(`${d.day}T00:00:00`).toLocaleDateString(
-                  'en-PH',
-                  { month: 'short', day: 'numeric' }
-                )}
-              </small>
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-export default function Analytics({ user }) {
-  const [range, setRange] = useState('30')
+export default function Analytics({ toast }) {
+  const [g, setG] = useState('daily')
+  const [unit, setUnit] = useState('months')
+  const [n, setN] = useState(1)
   const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
 
   useEffect(() => {
-    let active = true
+    setBusy(true)
+    api(`/analytics?group=${g}&unit=${unit}&n=${n}`)
+      .then(setData)
+      .catch(e => toast(e.message))
+      .finally(() => setBusy(false))
+  }, [g, unit, n])
 
-    setLoading(true)
-    setError('')
+  if (!data) return <PageSkeleton page="analytics" />
 
-    api(`/analytics?days=${range}`)
-      .then(result => {
-        if (active) setData(result)
-      })
-      .catch(err => {
-        if (active) setError(err.message)
-      })
-      .finally(() => {
-        if (active) setLoading(false)
-      })
-
-    return () => { active = false }
-  }, [range])
-
- if (loading && !data) {
-  return <PageSkeleton page="analytics" />
-}
-
-  const summary = data?.summary || {}
-  const payments = data?.payments || []
-  const maxPayment = Math.max(
-    1,
-    ...payments.map(p => num(p.revenue))
-  )
+  const { meta, series, totals } = data
+  const maxN = unit === 'years' ? meta.age_years : Math.max(1, meta.age_months)
+  const steps = STEPS.filter(s => s <= maxN)
+  const groups = GROUPS.filter(([k]) => groupOk(k, unit, n, meta))
+  const canYears = meta.age_years >= 1
+  const max = Math.max(...series.map(s => s.sales), 1)
+    const step = series.length > 40 ? 3 : series.length > 14 ? 2 : 1  // show about 6 labels max
+  // Change the range, and move to a valid grouping if the current one no longer fits
+  const setRange = (u, k) => {
+    setUnit(u); setN(k)
+    if (!groupOk(g, u, k, meta)) {
+      const first = GROUPS.find(([x]) => groupOk(x, u, k, meta))
+      if (first) setG(first[0])
+    }
+  }
 
   return (
     <>
-      <div className="analytics-heading">
-        <div>
-          <h1>Analytics</h1>
-          <p className="sub">
-            Store performance and sales insights for {user?.store}.
-          </p>
+      <h1>Analytics</h1>
+      <p className="sub">Sales over time. Options grow as your store gets older.</p>
+
+      <div className="bar">
+        <div className="seg" style={{ margin: 0 }}>
+          {groups.map(([k, l]) => (
+            <button key={k} type="button" className={g === k ? 'on' : ''} onClick={() => setG(k)}>{l}</button>
+          ))}
         </div>
-
-        <label className="analytics-range">
-          <span>Period</span>
-          <select
-            value={range}
-            onChange={e => setRange(e.target.value)}
-          >
-            {OPTIONS.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      {error && <div className="analytics-error">{error}</div>}
-
-      {loading && <p className="sub">Updating analytics...</p>}
-
-      <div className="analytics-metrics">
-        <Metric
-          label="Revenue"
-          value={peso(summary.revenue)}
-          detail="Completed sales"
-        />
-        <Metric
-          label="Gross profit"
-          value={peso(summary.profit)}
-          detail="Revenue less item cost"
-        />
-        <Metric
-          label="Orders"
-          value={num(summary.orders)}
-          detail="Completed transactions"
-        />
-        <Metric
-          label="Items sold"
-          value={num(summary.items)}
-          detail={`Average order: ${peso(summary.averageOrder)}`}
-        />
-      </div>
-
-      <section className="card analytics-section">
-        <div className="analytics-section-head">
-          <div>
-            <h3>Sales trend</h3>
-            <p>Daily revenue</p>
+        <select value={n} onChange={e => setRange(unit, +e.target.value)}>
+          {steps.map(s => <option key={s} value={s}>Last {s} {unit === 'years' ? (s === 1 ? 'year' : 'years') : (s === 1 ? 'month' : 'months')}</option>)}
+        </select>
+        {canYears && (
+          <div className="seg" style={{ margin: 0 }}>
+            <button type="button" className={unit === 'months' ? 'on' : ''} onClick={() => setRange('months', 1)}>Months</button>
+            <button type="button" className={unit === 'years' ? 'on' : ''} onClick={() => setRange('years', 1)}>Years</button>
           </div>
-          <strong>{peso(summary.revenue)}</strong>
-        </div>
-
-        {summary.orders
-          ? <SalesChart daily={data?.daily || []} />
-          : <Empty>No completed sales in this period.</Empty>
-        }
-      </section>
-
-      <div className="analytics-columns">
-        <section className="card analytics-section">
-          <h3>Top-selling products</h3>
-
-          {data?.topProducts?.length
-            ? data.topProducts.map((p, i) => (
-              <div className="analytics-list-row" key={p.id}>
-                <b>{i + 1}</b>
-                <div className="analytics-product-name">
-                  <b>{p.name}</b>
-                  <small>{p.units} units sold</small>
-                </div>
-                <strong>{peso(p.revenue)}</strong>
-              </div>
-            ))
-            : <Empty>No product sales yet.</Empty>
-          }
-        </section>
-
-        <section className="card analytics-section">
-          <h3>Payment methods</h3>
-
-          {payments.length
-            ? payments.map(p => (
-              <div className="analytics-breakdown" key={p.method}>
-                <div className="analytics-breakdown-label">
-                  <b>{p.method.toUpperCase()}</b>
-                  <span>{peso(p.revenue)}</span>
-                </div>
-
-                <div className="analytics-track">
-                  <span style={{
-                    width: `${p.revenue / maxPayment * 100}%`
-                  }} />
-                </div>
-
-                <small>{p.orders} orders</small>
-              </div>
-            ))
-            : <Empty>No payment data yet.</Empty>
-          }
-        </section>
+        )}
       </div>
 
-      <section className="card analytics-section">
-        <h3>Sales by category</h3>
+      <div style={{ opacity: busy ? 0.5 : 1, transition: 'opacity .15s' }}>
+        <div className="stats">
+          <div className="stat"><b>{peso(totals.sales)}</b><small>Total sales</small></div>
+          <div className="stat"><b>{totals.orders}</b><small>Orders</small></div>
+          <div className="stat"><b>{peso(totals.orders ? totals.sales / totals.orders : 0)}</b><small>Average sale</small></div>
+          {totals.profit != null && <div className="stat"><b>{peso(totals.profit)}</b><small>Profit</small></div>}
+        </div>
 
-        {data?.categories?.length
-          ? (
-            <div className="analytics-category-grid">
-              {data.categories.map(c => (
-                <div className="analytics-category" key={c.name}>
-                  <span>{c.name}</span>
-                  <strong>{peso(c.revenue)}</strong>
-                  <small>{c.units} units sold</small>
-                </div>
+        {totals.orders ? <>
+          <div className="an-chart" ref={el => { if (el) el.scrollLeft = el.scrollWidth }}>
+            {series.map((s, i) => (
+              <div className="an-col" key={s.key} title={`${s.label}: ${peso(s.sales)} · ${s.orders} order${s.orders === 1 ? '' : 's'}`}>
+                <div className="an-plot"><div className="an-bar" style={{ height: (s.sales / max * 100) + '%' }} /></div>
+                <small>{i % step === 0 ? s.label : ''}</small>
+              </div>
+            ))}
+          </div>
+
+          <div className="tw scroll"><table>
+            <thead><tr><th>Period</th><th>Orders</th><th>Sales</th>{totals.profit != null && <th>Profit</th>}</tr></thead>
+            <tbody>
+              {[...series].reverse().map(s => (
+                <tr key={s.key}>
+                  <td className="main">{s.label}</td>
+                  <td data-label="Orders">{s.orders}</td>
+                  <td data-label="Sales">{peso(s.sales)}</td>
+                  {totals.profit != null && <td data-label="Profit">{peso(s.profit)}</td>}
+                </tr>
               ))}
-            </div>
-          )
-          : <Empty>No category sales yet.</Empty>
-        }
-      </section>
+            </tbody>
+          </table></div>
+        </> : <Empty>No sales in this period yet.</Empty>}
+      </div>
     </>
   )
 }

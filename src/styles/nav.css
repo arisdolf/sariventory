@@ -109,23 +109,3 @@ nav.side button.out { margin-top: 16px; border: 1px solid var(--line) }
   .tile.danger, .tile.danger .ic { color: var(--bad) }
   .tile:active { transform: scale(.96) }
 }
-.nav-account {
-  margin-top: 20px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  display: flex;
-  flex-direction: column;
-  overflow-wrap: anywhere;
-}
-.nav-account b { font-size: 13px }
-.nav-account small { color: var(--mute); font-size: 12px }
-.top small { display: block; color: var(--mute); font-size: 12px; font-weight: 400 }
-.top button {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--text);
-  padding: 8px 10px;
-  font: 600 12px Figtree, sans-serif;
-}

@@ -1,52 +1,31 @@
-# Sariventory — Static Demo
+# Sariventory Static Demo
 
-This version runs as a **static React/Vite website**. It does not need Laravel, PHP, MySQL, SQLite, or a backend server. The app saves its store data and accounts in the browser's `localStorage`.
+This version runs entirely in the browser using `localStorage`. It does not call Laravel, PHP, MySQL, or any backend API.
 
 ## Run locally
+1. Install Node.js.
+2. Run `npm install`.
+3. Run `npm run dev`.
 
-```bash
-npm install
-npm run dev
-```
+## Build and deploy
+1. Run `npm run build`.
+2. Deploy the generated `dist` folder to Netlify, Vercel, GitHub Pages, or any static hosting provider.
 
-Create a deployable build:
+## Demo login
+All eight demo users from `DemoStoreSeeder.php` are included. Each account uses the same password: `Demo12345!`.
 
-```bash
-npm run build
-```
+| Role | Email |
+|---|---|
+| Owner | demo.owner@sariventory.test |
+| Manager | demo.manager@sariventory.test |
+| Cashier | demo.angelica@sariventory.test |
+| Cashier | demo.mark@sariventory.test |
+| Cashier | demo.joy@sariventory.test |
+| Cashier | demo.paolo@sariventory.test |
+| Inventory | demo.rico@sariventory.test |
+| Viewer | demo.teresa@sariventory.test |
 
-Deploy the generated `dist/` folder to Netlify, Vercel, GitHub Pages, or another static host. For Vercel/Netlify, use `npm run build` as the build command and `dist` as the output directory.
-
-## Demo store accounts
-
-The first run automatically creates one demo store named **Sari Store**, with sample products, categories, suppliers, and five team accounts. The login page includes one-click quick login buttons.
-
-| Role | Email | Password |
-|---|---|---|
-| Owner | `owner@saristore.local` | `owner1234` |
-| Manager | `manager@saristore.local` | `manager1234` |
-| Cashier | `cashier@saristore.local` | `cashier1234` |
-| Inventory staff | `inventory@saristore.local` | `inventory1234` |
-| Viewer | `viewer@saristore.local` | `viewer1234` |
-
-You can also create an account from the login page. New accounts automatically join the demo store as a cashier. The owner can change a member's role from the Team page.
+The login page does not automatically sign in. It only fills the selected account's email and password; press **Log in** to authenticate.
 
 ## Important limitations
-
-- Data is stored only in the current browser and device. It is not synchronized between different users' devices or browsers.
-- Clearing browser site data removes the locally stored store data and accounts.
-- This is a demo/prototype authentication system, not secure production authentication. Browser storage can be inspected or edited by the person using the device. Do not use real customer, payment, or business-sensitive data with this version.
-- If you need multiple people on different devices to share live inventory and sales, a backend/database is still required.
-
-## Reset the demo data
-
-In the browser developer console, run:
-
-```js
-localStorage.removeItem('sariventory_static_db_v1');
-localStorage.removeItem('token');
-localStorage.removeItem('user');
-location.reload();
-```
-
-The app recreates the original demo store on the next login.
+This is a front-end demonstration, not a secure production system. Demo credentials and data are bundled in public JavaScript, and browser `localStorage` is editable by visitors. Data changes are saved only in the current browser/device and do not synchronize between users. Password changes, account deletion, and changing/removing seeded team accounts are intentionally disabled. Use a real backend and database for production or shared multi-user data.

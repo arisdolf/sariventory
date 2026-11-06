@@ -1,4 +1,3 @@
-
 /* ===== Reusable pieces: forms, buttons, cards, tables, modal, toast, picker ===== */
 
 /* --- Forms --- */
@@ -124,6 +123,9 @@ dialog input, dialog select { width: 100% }
 .opts small { color: var(--mute); white-space: nowrap }
 .none { padding: 12px; color: var(--mute); text-align: center }
 
+/* Search dropdown that floats above the modal and fits the screen */
+.opts.fx { position: fixed; right: auto; max-height: none }
+
 /* --- Skeleton loading --- */
 .sk {
   background: linear-gradient(90deg, var(--panel) 25%, var(--line) 50%, var(--panel) 75%);
@@ -181,53 +183,41 @@ dialog input, dialog select { width: 100% }
 
 .btn:disabled { opacity: .5; cursor: not-allowed }
 
-/* Category row and action buttons */
-.category-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-top: 1px solid var(--line);
+.btn { white-space: nowrap }
+
+/* Skeleton tables */
+.sk-tbl { border: 1px solid var(--line); border-radius: 10px; overflow: hidden }
+.sk-row { display: flex; gap: 16px; align-items: center; padding: 14px; border-bottom: 1px solid var(--line) }
+.sk-row > * { flex: 1 }
+.sk-head { background: var(--panel) }
+.sk-tbl .sk-row:last-child { border-bottom: 0 }
+
+/* Analytics chart */
+ 
+.an-chart { display: flex; align-items: stretch; gap: 4px; height: 240px; padding: 14px 30px 0; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; overflow-x: auto; overflow-y: hidden; max-width: 100%; -webkit-overflow-scrolling: touch }
+.an-col { flex: 1 0 32px; min-width: 32px; display: flex; flex-direction: column; align-items: center; gap: 4px }
+.an-plot { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center }
+.an-bar { width: 100%; max-width: 36px; min-height: 2px; background: var(--acc); border-radius: 4px 4px 0 0 }
+.an-col small { width: 0; display: flex; justify-content: center; color: var(--mute); font-size: 11px; white-space: nowrap; padding-bottom: 6px; min-height: 22px }
+
+/* Long tables scroll inside their own box */
+.tw.scroll { max-height: 420px; overflow-y: auto }
+.tw.scroll thead th { position: sticky; top: 0; z-index: 1 }
+
+/* Tables that wrap their text instead of scrolling sideways */
+.tw.wrap { overflow-x: visible }
+.tw.wrap th, .tw.wrap td { white-space: normal; overflow-wrap: anywhere }
+.tw.wrap td.act { white-space: nowrap }
+
+@media (max-width: 760px) {
+  .sk-tbl { border: 0; overflow: visible }
+  .sk-head { display: none }
+  .sk-row { flex-direction: column; align-items: stretch; gap: 10px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px }
+  .sk-row > * { flex: none }
 }
 
-.category-name {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.category-name small {
-  color: var(--mute);
-}
-
-.category-actions {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.category-actions .btn {
-  display: inline-flex !important;
-  width: auto !important;
-  min-width: 0;
-  flex: 0 0 auto !important;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (max-width: 420px) {
-  .category-row { gap: 8px; }
-  .category-actions { gap: 5px; }
-  .category-actions .btn {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
+/* Receipt stays centered on phones (forms stay as bottom sheets) */
+@media (max-width: 760px) {
+  .ov.rc-ov { place-items: center; padding: 16px }
+  .ov.rc-ov .receipt { max-height: 85vh }
 }
